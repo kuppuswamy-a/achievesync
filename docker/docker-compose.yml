@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: achievesync
+      POSTGRES_USER: achievesync_user
+      POSTGRES_PASSWORD: achievesync_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    networks:
+      - achievesync-network
+
+  user-service:
+    build:
+      context: ../backend/user-service
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8081"
+      - "9091:9091"
+    depends_on:
+      - postgres
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/achievesync_user_db
+      - SPRING_DATASOURCE_USERNAME=achievesync_user
+      - SPRING_DATASOURCE_PASSWORD=achievesync_password
+    networks:
+      - achievesync-network
+
+  goal-service:
+    build:
+      context: ../backend/goal-service
+      dockerfile: Dockerfile
+    ports:
+      - "8082:8082"
+      - "9092:9092"
+    depends_on:
+      - postgres
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/achievesync_goal_db
+      - SPRING_DATASOURCE_USERNAME=achievesync_user
+      - SPRING_DATASOURCE_PASSWORD=achievesync_password
+    networks:
+      - achievesync-network
+
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - user-service
+      - goal-service
+    networks:
+      - achievesync-network
+
+volumes:
+  postgres_data:
+
+networks:
+  achievesync-network:
+    driver: bridge

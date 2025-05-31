@@ -1,0 +1,105 @@
+syntax = "proto3";
+
+package com.achievesync.grpc;
+
+option java_package = "com.achievesync.grpc";
+option java_outer_classname = "GoalServiceProto";
+
+service GoalService {
+  rpc CreateGoal(CreateGoalRequest) returns (GoalResponse);
+  rpc UpdateGoal(UpdateGoalRequest) returns (GoalResponse);
+  rpc RecordProgress(ProgressRequest) returns (ProgressResponse);
+  rpc CompleteGoal(GoalIdRequest) returns (GoalResponse);
+  rpc GetGoal(GoalIdRequest) returns (GoalResponse);
+  rpc GetUserGoals(UserGoalsRequest) returns (GoalsListResponse);
+  rpc GetGoalProgress(GoalIdRequest) returns (ProgressListResponse);
+  rpc GetGoalStreak(GoalIdRequest) returns (StreakResponse);
+  rpc NotifyGoalProgress(NotifyProgressRequest) returns (NotifyProgressResponse);
+}
+
+message CreateGoalRequest {
+  string user_id = 1;
+  string description = 2;
+  string target_date = 3;
+  string category = 4;
+  repeated string tags = 5;
+}
+
+message UpdateGoalRequest {
+  string goal_id = 1;
+  string description = 2;
+  string target_date = 3;
+  string category = 4;
+  repeated string tags = 5;
+}
+
+message ProgressRequest {
+  string goal_id = 1;
+  double progress_percentage = 2;
+  string notes = 3;
+}
+
+message GoalIdRequest {
+  string goal_id = 1;
+}
+
+message UserGoalsRequest {
+  string user_id = 1;
+  string status = 2; // Optional filter: PENDING, IN_PROGRESS, COMPLETED
+  string category = 3; // Optional filter by category
+}
+
+message GoalResponse {
+  string goal_id = 1;
+  string user_id = 2;
+  string description = 3;
+  string target_date = 4;
+  string status = 5;
+  double progress_percentage = 6;
+  string created_at = 7;
+  string updated_at = 8;
+  string category = 9;
+  repeated string tags = 10;
+}
+
+message GoalsListResponse {
+  repeated GoalResponse goals = 1;
+  int32 total_count = 2;
+}
+
+message ProgressEntry {
+  string progress_id = 1;
+  string goal_id = 2;
+  double progress_percentage = 3;
+  string notes = 4;
+  string timestamp = 5;
+}
+
+message ProgressResponse {
+  bool success = 1;
+  string message = 2;
+  ProgressEntry progress = 3;
+}
+
+message ProgressListResponse {
+  repeated ProgressEntry progress_entries = 1;
+}
+
+message StreakResponse {
+  string goal_id = 1;
+  int32 current_streak_days = 2;
+  int32 longest_streak_days = 3;
+  string last_streak_update = 4;
+  bool is_streak_active = 5;
+}
+
+message NotifyProgressRequest {
+  string goal_id = 1;
+  string user_id = 2;
+  double progress_percentage = 3;
+}
+
+message NotifyProgressResponse {
+  bool success = 1;
+  string message = 2;
+}
