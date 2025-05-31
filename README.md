@@ -1,4 +1,4 @@
-# AchieveSync Platform Implementation
+# AchieveSync
 
 An event-driven microservices platform for consistent goal achievement built with Spring Boot, Axon Framework, and Flutter Web.
 
